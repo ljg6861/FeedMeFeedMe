@@ -1,0 +1,7 @@
+name: feedme_feedme_exemplar
+
+environment:
+  sdk: '>=2.10.0 <3.0.0'
+
+dependencies:
+  uuid: ^3.0.4
