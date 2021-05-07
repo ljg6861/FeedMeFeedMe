@@ -4,7 +4,7 @@ import 'supermarket.dart';
 
 class City extends DataModel {
   final List<Supermarket> supermarkets;
-  int dailyFoodProduction = 300000000;
+  int dailyFoodProduction = 30000000;
   int daysToRation = 5;
   int surplusFood = 0;
   final String id = Uuid().v4();
@@ -63,8 +63,9 @@ class City extends DataModel {
         //If supermarket already has enough food, do nothing
         if (marketsWithEnoughFood.containsKey(supermarket)) {
           print('market has enough food');
-          supermarket.advanceDay();
+          supermarket.advanceDay(1);
         } else {
+          print('market does not have enough food');
           var currentMarketCalorieDeficit = ((supermarket.surplusCalories + supermarket.dailyNeededCalories) - supermarket.availableCalories);
           //shift food within city
           if (marketsWithEnoughFood.length != 0) {
@@ -90,10 +91,17 @@ class City extends DataModel {
             surplusFood -= currentMarketCalorieDeficit;
           }
         }
-        supermarket.advanceDay();
+        supermarket.advanceDay(1);
       });
     } else {
-      //not enough food, portion all supermarkets food
+      //not enough food, portion all supermarkets food by a set ratio
+      supermarkets.forEach((market) {
+        var ratio = surplusCalories / calorieDeficit;
+        print('not enough food in city, portioning by: ' + ratio.toString());
+        market.availableCalories += (market.getChildCalories() * ratio).round();
+        surplusFood -= (market.getChildCalories() * ratio).round();
+        market.advanceDay(ratio);
+      });
     }
   }
 

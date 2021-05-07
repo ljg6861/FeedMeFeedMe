@@ -24,23 +24,10 @@ class Supermarket extends DataModel{
     return map;
   }
 
-  void advanceDay() {
-    if (availableCalories > getChildCalories()){
-      children.forEach((fridge) {
-        var desiredCalories = fridge.getChildCalories();
-        fridge.availableCalories += desiredCalories;
-        availableCalories -= desiredCalories;
-        fridge.advanceDay();
-      });
-    } else{
-      var totalPeople = getNumberOfPeopleDependent();
-      children.forEach((fridge) {
-        var totalCaloriesToGive = ((availableCalories/totalPeople)* fridge.children.length).floor();
-        fridge.availableCalories += totalCaloriesToGive;
-        availableCalories -= totalCaloriesToGive;
-        fridge.advanceDay();
-      });
-    }
+  void advanceDay(double ratio) {
+    children.forEach((fridge) {
+      fridge.availableCalories += (fridge.getChildCalories() * ratio).round();
+    });
   }
 
   void generateFamilies() {
