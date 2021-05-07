@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'city.dart';
-import 'data_model.dart';
 import 'package:uuid/uuid.dart';
 
 class Nation{
@@ -27,8 +25,25 @@ class Nation{
     file.writeAsStringSync(jsonEncode(this.toJson()));
   }
 
-  void advanceDay(int foodProducedYesterday) {
-    
+  void advanceDay() {
+    var citiesWithEnoughFood = [];
+    var citiesWithoutEnoughFood = [];
+    int calorieDeficit = 0;
+    int surplusCalories = 0;
+
+    //Get initial state of cities
+    children.forEach((city) {
+      if (city.surplusFood > city.surplusCalories){
+        citiesWithEnoughFood.add(city);
+        surplusCalories += (city.surplusFood - city.surplusCalories);
+      } else{
+        citiesWithoutEnoughFood.add(city);
+        calorieDeficit += (city.surplusCalories - city.surplusFood);
+      }
+      city.advanceDay(5);
+    });
+
+
   }
 
   int getChildCalories() {

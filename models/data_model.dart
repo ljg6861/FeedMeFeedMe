@@ -3,21 +3,12 @@ import 'package:uuid/uuid.dart';
 import 'person.dart';
 
 abstract class DataModel {
-  List<DataModel> children;
+  int daysToRation = 5;
 
-  Map toJson();
-
-  int getChildCalories() {
-    int total = 0;
-    children.forEach((element) {
-      if (element is Person && element.desiredCalories == null) {
-        total += 2000;
-      } else {
-        total += element.getChildCalories();
-      }
-    });
-    return total;
+  int get surplusCalories{
+    return this.getChildCalories() * daysToRation;
   }
 
-  void advanceDay();
+  int getChildCalories();
+
 }

@@ -1,11 +1,17 @@
 import 'dart:math';
 import 'package:uuid/uuid.dart';
+import 'data_model.dart';
 import 'fridge.dart';
 
-class Supermarket{
+class Supermarket extends DataModel{
   List<Fridge> children;
   int availableCalories = 0;
+  int daysToRation = 5;
   final String id = Uuid().v4();
+
+  int get surplusCalories=>this.getChildCalories() * (daysToRation + 1);
+
+  int get dailyNeededCalories => this.getChildCalories();
 
   Supermarket({this.children});
 
@@ -24,6 +30,7 @@ class Supermarket{
         var desiredCalories = fridge.getChildCalories();
         fridge.availableCalories += desiredCalories;
         availableCalories -= desiredCalories;
+        fridge.advanceDay();
       });
     } else{
       var totalPeople = getNumberOfPeopleDependent();
@@ -31,6 +38,7 @@ class Supermarket{
         var totalCaloriesToGive = ((availableCalories/totalPeople)* fridge.children.length).floor();
         fridge.availableCalories += totalCaloriesToGive;
         availableCalories -= totalCaloriesToGive;
+        fridge.advanceDay();
       });
     }
   }

@@ -1,10 +1,11 @@
 import 'dart:math';
+import 'data_model.dart';
 import 'person.dart';
 import 'package:uuid/uuid.dart';
 
 import 'supermarket.dart';
 
-class Fridge{
+class Fridge extends DataModel{
   List<Person> children;
   final Supermarket supermarket;
   int availableCalories = 0;
@@ -29,7 +30,7 @@ class Fridge{
       });
     } else{
       children.forEach((person) {
-        var totalCaloriesToGive = (availableCalories/person.children.length).floor();
+        var totalCaloriesToGive = (availableCalories/this.children.length).floor();
         availableCalories -= totalCaloriesToGive;
       });
     }

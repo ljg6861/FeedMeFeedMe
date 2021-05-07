@@ -10,17 +10,14 @@ class Person extends DataModel{
 
   Person({this.fridge, this.desiredCalories});
 
-  @override
   Map toJson() {
     return {id: desiredCalories};
   }
 
-  @override
   int getChildCalories() {
     return desiredCalories ?? 2000;
   }
 
-  @override
   void advanceDay() {
     this.fridge.availableCalories -= desiredCalories;
   }
