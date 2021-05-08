@@ -5,7 +5,7 @@ import 'person.dart';
 abstract class DataModel {
   int daysToRation = 5;
 
-  int get surplusCalories{
+  int get neededCalories{
     return this.getChildCalories() * daysToRation;
   }
 

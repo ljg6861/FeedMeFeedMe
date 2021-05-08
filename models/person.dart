@@ -18,8 +18,4 @@ class Person extends DataModel{
     return desiredCalories ?? 2000;
   }
 
-  void advanceDay() {
-    this.fridge.availableCalories -= desiredCalories;
-  }
-
 }

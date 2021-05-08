@@ -9,7 +9,7 @@ class Supermarket extends DataModel{
   int daysToRation = 5;
   final String id = Uuid().v4();
 
-  int get surplusCalories=>this.getChildCalories() * (daysToRation + 1);
+  int get neededCalories=>this.getChildCalories() * (daysToRation + 1);
 
   int get dailyNeededCalories => this.getChildCalories();
 

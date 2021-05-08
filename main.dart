@@ -4,10 +4,10 @@ import 'models/nation.dart';
 void main() {
   var nation = setupEnvironment();
   for (int i = 0; i < 10; i++) {
+    nation.advanceDay();
     nation.children.forEach((element) {
       print(element.surplusFood);
     });
-    nation.advanceDay();
   }
 }
 
@@ -26,10 +26,9 @@ Nation setupEnvironment() {
   }
   print('Giving each City enough food for 5 days');
   nation.children.forEach((city) {
-    int totalCalories = city.getChildCalories();
-    city.supermarkets.forEach((supermarket) {
-      supermarket.availableCalories = (totalCalories/city.supermarkets.length).round();
-    });
+    int totalCalories = city.getChildCalories() * 6;
+    city.surplusFood += totalCalories;
+    city.advanceDay(5);
   });
   return nation;
 }

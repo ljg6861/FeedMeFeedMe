@@ -22,18 +22,10 @@ class Fridge extends DataModel{
     return map;
   }
 
-  void advanceDay() {
-    if (availableCalories > getChildCalories()){
-      children.forEach((person) {
-        var desiredCalories = person.getChildCalories();
-        availableCalories -= desiredCalories;
-      });
-    } else{
-      children.forEach((person) {
-        var totalCaloriesToGive = (availableCalories/this.children.length).floor();
-        availableCalories -= totalCaloriesToGive;
-      });
-    }
+  void advanceDay(double ratio) {
+    children.forEach((person) {
+      this.availableCalories -= (person.getChildCalories() * ratio).round();
+    });
   }
 
   void generatePeople(int numberOfPeople) {
