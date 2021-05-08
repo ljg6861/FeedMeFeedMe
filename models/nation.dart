@@ -47,47 +47,49 @@ class Nation {
       }
     });
 
-    averageRatio = totalRatio/children.length;
+    averageRatio = totalRatio / children.length;
 
-    if (citiesWithoutEnoughFood.length > 0) {
-      //see if there is enough food in the nation
-      var totalFood = getAllCitiesAvailableFood();
-      var neededFood = this.getChildCalories();
+    //see if there is enough food in the nation
+    var totalFood = getAllCitiesAvailableFood();
+    var neededFood = this.getChildCalories() * (daysToRation - 1);
 
-      if (totalFood > neededFood) {
-        children.forEach((city) {
-          if (citiesWithEnoughFood.containsKey(city)) {
-            print('city has enough food');
-          } else {
-            print('city does not have enough food');
-            var currentMarketCalorieDeficit = ((city.neededCalories + city.dailyFoodProduction) - city.totalCaloriesInSupermarkets);
-            //shift food within city
-            if (citiesWithEnoughFood.length != 0) {
-              if (citiesWithEnoughFood[citiesWithEnoughFood.keys.last] != 0) {
-                //supermarket food
-                for (int i = 0; i < citiesWithEnoughFood.keys.length; i++) {
-                  //move around supermarket food first, then use city food
-                  var currentKey = citiesWithEnoughFood.keys.toList()[i];
-                  if (citiesWithEnoughFood[currentKey] >= currentMarketCalorieDeficit) {
-                    city.surplusFood += currentMarketCalorieDeficit;
-                    citiesWithEnoughFood[currentKey] -= currentMarketCalorieDeficit;
-                    break;
-                  } else {
-                    city.surplusFood += citiesWithEnoughFood[currentKey];
-                    currentMarketCalorieDeficit -= citiesWithEnoughFood[currentKey];
-                    citiesWithEnoughFood[currentKey] = 0;
-                  }
-                }
+    children.forEach((city) {
+      if (citiesWithEnoughFood.containsKey(city)) {
+        print('city has enough food');
+      } else {
+        print('city does not have enough food');
+        var currentMarketCalorieDeficit = ((city.neededCalories + city.dailyFoodProduction) - city.totalCaloriesInSupermarkets);
+        //shift food within city
+        if (citiesWithEnoughFood.length != 0) {
+          if (citiesWithEnoughFood[citiesWithEnoughFood.keys.last] != 0) {
+            //supermarket food
+            for (int i = 0; i < citiesWithEnoughFood.keys.length; i++) {
+              City currentKey = citiesWithEnoughFood.keys.toList()[i];
+              if (citiesWithEnoughFood[currentKey] >= currentMarketCalorieDeficit) {
+                city.surplusFood += currentMarketCalorieDeficit;
+                citiesWithEnoughFood[currentKey] -= currentMarketCalorieDeficit;
+                currentKey.surplusFood -= currentMarketCalorieDeficit;
+                break;
+              } else {
+                city.surplusFood += citiesWithEnoughFood[currentKey];
+                currentMarketCalorieDeficit -= citiesWithEnoughFood[currentKey];
+                currentKey.surplusFood -= citiesWithEnoughFood[currentKey];
+                citiesWithEnoughFood[currentKey] = 0;
               }
             }
           }
-        });
-      }
-      //need to begin rationing
-      else{
-        if (daysToRation > -1){
-          print('Reducing days of rationing');
         }
+      }
+    });
+    //need to begin rationing
+    if (totalFood < neededFood) {
+      if (daysToRation > 0) {
+        print('FAMINE DETECTED');
+        daysToRation -= 1;
+        print('Current amount of days to ration reduced to: ' + daysToRation.toString());
+        this.advanceDay();
+      } else {
+        print('SIMULATION FAILED');
       }
     }
   }

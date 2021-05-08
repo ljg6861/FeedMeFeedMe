@@ -10,7 +10,7 @@ class City extends DataModel {
   final String id = Uuid().v4();
 
   int get neededCalories {
-    return this.getChildCalories() * daysToRation;
+    return this.getChildCalories() * (daysToRation - 1);
   }
 
   int get totalCaloriesInSupermarkets {
@@ -33,8 +33,8 @@ class City extends DataModel {
   }
 
   double advanceDay(int daysToRation) {
-    var totalPeople = getNumberOfPeopleDependent();
-    surplusFood += dailyFoodProduction;
+    this.daysToRation = daysToRation;
+    this.surplusFood += dailyFoodProduction;
 
     double ratio = 0;
     var marketsWithEnoughFood = {};
@@ -47,7 +47,6 @@ class City extends DataModel {
       market.daysToRation = daysToRation;
       if (market.availableCalories >= market.neededCalories) {
         marketsWithEnoughFood[market] = (market.availableCalories - market.neededCalories);
-        surplusCalories += (market.availableCalories - market.neededCalories);
       } else {
         marketsWithoutEnoughFood[market] = market.availableCalories - market.neededCalories;
         calorieDeficit += (market.neededCalories - market.availableCalories);
@@ -56,44 +55,26 @@ class City extends DataModel {
 
     //planning
 
+    print('Beginning planning phase, current deficit: ' + calorieDeficit.toString());
+    print('Current surplus: ' + surplusCalories.toString());
+
     //if we have enough extra food within the city
-    if (calorieDeficit < surplusCalories) {
+    if (calorieDeficit <= surplusCalories) {
       ratio = 1;
       supermarkets.forEach((supermarket) {
         var numberPerMarket = supermarket.getNumberOfPeopleDependent();
 
         //If supermarket already has enough food, do nothing
         if (marketsWithEnoughFood.containsKey(supermarket)) {
-          print('market has enough food');
-          supermarket.advanceDay(1);
         } else {
           print('market does not have enough food');
-          var currentMarketCalorieDeficit = ((supermarket.neededCalories + supermarket.dailyNeededCalories) - supermarket.availableCalories);
-          //shift food within city
-          if (marketsWithEnoughFood.length != 0) {
-            if (marketsWithEnoughFood[marketsWithEnoughFood.keys.last] != 0) {
-              //supermarket food
-              for (int i = 0; i < marketsWithEnoughFood.keys.length; i++) {
-                //move around supermarket food first, then use city food
-                var currentKey = marketsWithEnoughFood.keys.toList()[i];
-                if (marketsWithEnoughFood[currentKey] >= currentMarketCalorieDeficit) {
-                  supermarket.availableCalories += currentMarketCalorieDeficit;
-                  marketsWithEnoughFood[currentKey] -= currentMarketCalorieDeficit;
-                  currentMarketCalorieDeficit -= marketsWithEnoughFood[currentKey];
-                  currentMarketCalorieDeficit -= marketsWithEnoughFood[currentKey];
-                  break;
-                } else {
-                  supermarket.availableCalories += marketsWithEnoughFood[currentKey];
-                  currentMarketCalorieDeficit -= marketsWithEnoughFood[currentKey];
-                  marketsWithEnoughFood[currentKey] = 0;
-                }
-              }
-            }
-          } else {
-            //city food
-            supermarket.availableCalories += currentMarketCalorieDeficit;
-            surplusFood -= currentMarketCalorieDeficit;
-          }
+          var currentMarketCalorieDeficit = (supermarket.neededCalories - supermarket.availableCalories);
+          print('current deficit of: ' + currentMarketCalorieDeficit.toString());
+          //city food
+          print('Using city food to achieve calorie goal\nStarting city surplus: ' + surplusFood.toString());
+          supermarket.availableCalories += currentMarketCalorieDeficit;
+          surplusFood -= currentMarketCalorieDeficit;
+          print('Ending city surplus: ' + surplusFood.toString());
         }
         supermarket.advanceDay(1);
       });
@@ -103,7 +84,9 @@ class City extends DataModel {
         ratio = surplusCalories / calorieDeficit;
         print('not enough food in city, portioning by: ' + ratio.toString());
         market.availableCalories += (market.getChildCalories() * ratio).round();
+        print('surplus before ration: ' + surplusFood.toString());
         surplusFood -= (market.getChildCalories() * ratio).round();
+        print('surplus after ration: ' + surplusFood.toString());
         market.advanceDay(ratio);
       });
     }

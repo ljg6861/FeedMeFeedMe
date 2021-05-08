@@ -6,7 +6,7 @@ void main() {
   for (int i = 0; i < 10; i++) {
     nation.advanceDay();
     nation.children.forEach((element) {
-      print(element.surplusFood);
+      print('surplus: ' + element.surplusFood.toString());
     });
   }
 }
@@ -26,8 +26,12 @@ Nation setupEnvironment() {
   }
   print('Giving each City enough food for 5 days');
   nation.children.forEach((city) {
-    int totalCalories = city.getChildCalories() * 6;
+    int totalCalories = city.getChildCalories();
     city.surplusFood += totalCalories;
+    city.supermarkets.forEach((element) {
+      int totalCalories = element.neededCalories;
+      element.availableCalories += totalCalories;
+    });
     city.advanceDay(5);
   });
   return nation;
