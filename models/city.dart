@@ -4,7 +4,7 @@ import 'supermarket.dart';
 
 class City extends DataModel {
   final List<Supermarket> supermarkets;
-  int dailyFoodProduction = 3000000;
+  int dailyFoodProduction = 9000000;
   int daysToRation = 5;
   int surplusFood = 0;
   final String id = Uuid().v4();

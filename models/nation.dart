@@ -59,7 +59,7 @@ class Nation {
       } else {
         print('city does not have enough food');
         var currentMarketCalorieDeficit = ((city.neededCalories + city.dailyFoodProduction) - city.totalCaloriesInSupermarkets);
-        //shift food within city
+        //shift food within nation
         if (citiesWithEnoughFood.length != 0) {
           if (citiesWithEnoughFood[citiesWithEnoughFood.keys.last] != 0) {
             //supermarket food
@@ -83,11 +83,10 @@ class Nation {
     });
     //need to begin rationing
     if (totalFood < neededFood) {
-      if (daysToRation > 0) {
+      if (daysToRation > 1) {
         print('FAMINE DETECTED');
         daysToRation -= 1;
         print('Current amount of days to ration reduced to: ' + daysToRation.toString());
-        this.advanceDay();
       } else {
         print('SIMULATION FAILED');
       }
