@@ -41,7 +41,7 @@ class Nation {
     children.forEach((city) {
       totalPeople += city.getNumberOfPeopleDependent();
       totalFood += city.surplusFood + city.totalCaloriesInSupermarkets;
-      if ((city.surplusFood + city.totalCaloriesInSupermarkets) > city.neededCalories) {
+      if ((city.surplusFood + city.totalCaloriesInSupermarkets) >= city.neededCalories) {
         citiesWithEnoughFood[city] = city.surplusFood;
       } else {
         //we need to make some adjustments, some cities don't have enough food
@@ -75,6 +75,8 @@ class Nation {
               }
             }
           }
+        } else{
+
         }
       }
       city.advanceDay(daysToRation);

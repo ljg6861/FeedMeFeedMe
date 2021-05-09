@@ -7,6 +7,7 @@ class City extends DataModel {
   int dailyFoodProduction = 9000000;
   int daysToRation = 5;
   double currentRatio = 1;
+  List<double> historyRatios = [];
   int surplusFood = 0;
   final String id;
 
@@ -41,7 +42,6 @@ class City extends DataModel {
     var marketsWithEnoughFood = {};
     var marketsWithoutEnoughFood = {};
     var calorieDeficit = 0;
-    var surplusCalories = surplusFood;
 
     //Get initial state of markets
     supermarkets.forEach((market) {
@@ -59,7 +59,12 @@ class City extends DataModel {
     //if we have enough extra food within the city
     if (calorieDeficit <= dailyFoodProduction && ((surplusFood + totalCaloriesInSupermarkets + dailyFoodProduction) > neededCalories)) {
       ratio = 1;
-      this.currentRatio = 1;
+      var computedNewRatio = 1.0;
+      for (int i = 0; i < historyRatios.length; i++){
+        computedNewRatio += historyRatios[i];
+      }
+      computedNewRatio = computedNewRatio / (historyRatios.length + 1);
+      this.currentRatio = computedNewRatio;
       supermarkets.forEach((supermarket) {
         //If supermarket already has enough food, do nothing
         if (marketsWithEnoughFood.containsKey(supermarket)) {
@@ -74,16 +79,24 @@ class City extends DataModel {
     } else {
       //not enough food, portion all supermarkets food by a set ratio
       supermarkets.forEach((market) {
-        ratio = dailyFoodProduction / calorieDeficit;
-        print('not enough food in city, portioning by: ' + ratio.toString());
+        ratio = (dailyFoodProduction / calorieDeficit);
+        var computedNewRatio = ratio;
+        for (int i = 0; i < historyRatios.length; i++){
+          computedNewRatio += historyRatios[i];
+        }
+        computedNewRatio = computedNewRatio / (historyRatios.length + 1);
+        this.currentRatio = computedNewRatio;
         market.availableCalories += (market.getChildCalories(ratio)).round();
         surplusFood -= (market.getChildCalories(ratio)).round();
         if (surplusFood < 0){ //remove negative errors from rounding
           surplusFood = 0;
         }
         market.advanceDay(ratio);
-        this.currentRatio = ratio;
       });
+    }
+    historyRatios.add(ratio);
+    if (historyRatios.length == 11){ //only use last 10 days as analysis
+      historyRatios.removeAt(0);
     }
     return ratio;
   }
@@ -98,8 +111,8 @@ class City extends DataModel {
 
   int getNumberOfPeopleDependent() {
     int total = 0;
-    supermarkets.forEach((fridge) {
-      total += fridge.getNumberOfPeopleDependent();
+    supermarkets.forEach((supermarket) {
+      total += supermarket.getNumberOfPeopleDependent();
     });
     return total;
   }

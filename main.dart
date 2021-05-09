@@ -28,7 +28,7 @@ void beginSimulation(int daysToRun, Nation nation){
         city.dailyFoodProduction = (((totalCalories - (totalCalories * 0.35)) + random.nextInt((totalCalories * 0.5).round())).round());
       }
       else if (i > 12 && i <= 24) { //Start a famine
-        city.dailyFoodProduction = (((totalCalories - (totalCalories * 0.8)) + random.nextInt((totalCalories * 0.5).round())).round());
+        city.dailyFoodProduction = (((totalCalories - (totalCalories)) + random.nextInt((totalCalories * 0.5).round())).round());
       }
       else{ //return to normal
         city.dailyFoodProduction = (((totalCalories - (totalCalories * 0.15)) + random.nextInt((totalCalories * 0.5).round())).round());
