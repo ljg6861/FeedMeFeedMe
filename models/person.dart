@@ -2,7 +2,7 @@ import 'package:uuid/uuid.dart';
 import 'data_model.dart';
 import 'fridge.dart';
 
-class Person extends DataModel{
+class Person{
   final int desiredCalories;
   final Fridge fridge;
   List<DataModel> children = null;
@@ -14,8 +14,11 @@ class Person extends DataModel{
     return {id: desiredCalories};
   }
 
-  int getChildCalories() {
-    return desiredCalories ?? 2000;
+  int getChildCalories(ratio) {
+    if ((desiredCalories ?? 2000) * ratio < 1500){
+      return 1500;
+    }
+    return ((desiredCalories ?? 2000) * ratio).round();
   }
 
 }

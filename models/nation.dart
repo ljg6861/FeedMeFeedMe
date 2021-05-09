@@ -33,13 +33,15 @@ class Nation {
     var citiesWithoutEnoughFood = {};
 
     var averageRatio = 0.0;
+    var totalPeople = 0;
     var totalRatio = 0;
+    var totalFood = 0;
 
     //Get initial state of cities
     children.forEach((city) {
-      var currentRatio = city.advanceDay(daysToRation);
-      totalRatio += currentRatio.round();
-      if (currentRatio == 1) {
+      totalPeople += city.getNumberOfPeopleDependent();
+      totalFood += city.surplusFood + city.totalCaloriesInSupermarkets;
+      if ((city.surplusFood + city.totalCaloriesInSupermarkets) > city.neededCalories) {
         citiesWithEnoughFood[city] = city.surplusFood;
       } else {
         //we need to make some adjustments, some cities don't have enough food
@@ -49,21 +51,16 @@ class Nation {
 
     averageRatio = totalRatio / children.length;
 
-    //see if there is enough food in the nation
-    var totalFood = getAllCitiesAvailableFood();
-    var neededFood = this.getChildCalories() * (daysToRation - 1);
-
     children.forEach((city) {
       if (citiesWithEnoughFood.containsKey(city)) {
-        print('city has enough food');
       } else {
-        print('city does not have enough food');
         var currentMarketCalorieDeficit = ((city.neededCalories + city.dailyFoodProduction) - city.totalCaloriesInSupermarkets);
         //shift food within nation
         if (citiesWithEnoughFood.length != 0) {
           if (citiesWithEnoughFood[citiesWithEnoughFood.keys.last] != 0) {
             //supermarket food
             for (int i = 0; i < citiesWithEnoughFood.keys.length; i++) {
+              print('Moving food around cities');
               City currentKey = citiesWithEnoughFood.keys.toList()[i];
               if (citiesWithEnoughFood[currentKey] >= currentMarketCalorieDeficit) {
                 city.surplusFood += currentMarketCalorieDeficit;
@@ -80,7 +77,16 @@ class Nation {
           }
         }
       }
+      city.advanceDay(daysToRation);
     });
+
+    children.forEach((city) {
+      city.surplusFood = ((totalFood / children.length) * (city.getNumberOfPeopleDependent() / totalPeople)).round();
+    });
+
+    totalFood = getAllCitiesAvailableFood();
+    var neededFood = this.getChildCalories(averageRatio) * (daysToRation - 1);
+
     //need to begin rationing
     if (totalFood < neededFood) {
       if (daysToRation > 1) {
@@ -97,14 +103,23 @@ class Nation {
     var total = 0;
     children.forEach((element) {
       total += element.totalCaloriesInSupermarkets;
+      total += element.surplusFood;
     });
     return total;
   }
 
-  int getChildCalories() {
+  int getAllCitiesDailyProduction() {
+    var total = 0;
+    children.forEach((element) {
+      total += element.dailyFoodProduction;
+    });
+    return total;
+  }
+
+  int getChildCalories(double ratio) {
     int total = 0;
     children.forEach((element) {
-      total += element.getChildCalories();
+      total += element.getChildCalories(ratio);
     });
     return total;
   }

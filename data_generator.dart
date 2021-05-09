@@ -34,7 +34,7 @@ class DataGenerator {
         market.children = _generateFamilies(market);
         superMarkets.add(market);
       }
-      cities.add(City(supermarkets: superMarkets));
+      cities.add(City(i.toString(), supermarkets: superMarkets));
     }
     return Nation(children: cities);
   }

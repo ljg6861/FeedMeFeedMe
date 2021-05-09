@@ -9,9 +9,9 @@ class Supermarket extends DataModel{
   int daysToRation = 5;
   final String id = Uuid().v4();
 
-  int get neededCalories=>this.getChildCalories() * (daysToRation);
+  int neededCalories(double ratio)=>this.getChildCalories(ratio) * (daysToRation);
 
-  int get dailyNeededCalories => this.getChildCalories();
+  int dailyNeededCalories(ratio) => this.getChildCalories(ratio);
 
   Supermarket({this.children});
 
@@ -26,8 +26,9 @@ class Supermarket extends DataModel{
 
   void advanceDay(double ratio) {
     children.forEach((fridge) {
-      fridge.availableCalories += (fridge.getChildCalories() * ratio).round();
-      this.availableCalories -= (fridge.getChildCalories() * ratio).round();
+      fridge.availableCalories += (fridge.getChildCalories(ratio)).round();
+      this.availableCalories -= (fridge.getChildCalories(ratio)).round();
+      fridge.advanceDay(ratio);
     });
   }
 
@@ -51,10 +52,10 @@ class Supermarket extends DataModel{
     this.children = returnData;
   }
 
-  int getChildCalories() {
+  int getChildCalories(double ratio) {
     int total = 0;
     children.forEach((element) {
-      total += element.getChildCalories();
+      total += element.getChildCalories(ratio);
     });
     return total;
   }

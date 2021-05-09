@@ -24,7 +24,7 @@ class Fridge extends DataModel{
 
   void advanceDay(double ratio) {
     children.forEach((person) {
-      this.availableCalories -= (person.getChildCalories() * ratio).round();
+      this.availableCalories -= (person.getChildCalories(ratio));
     });
   }
 
@@ -46,10 +46,10 @@ class Fridge extends DataModel{
     this.children = returnData;
   }
 
-  int getChildCalories() {
+  int getChildCalories(double ratio) {
     int total = 0;
     children.forEach((element) {
-      total += element.getChildCalories();
+      total += element.getChildCalories(ratio);
     });
     return total;
   }
