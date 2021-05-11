@@ -78,6 +78,7 @@ class City extends DataModel {
       });
     } else {
       //not enough food, portion all supermarkets food by a set ratio
+      print('Not enough food in city detected, rationing while waiting for supplies');
       supermarkets.forEach((market) {
         ratio = (dailyFoodProduction / calorieDeficit);
         var computedNewRatio = ratio;
@@ -93,6 +94,7 @@ class City extends DataModel {
         }
         market.advanceDay(ratio);
       });
+      print('Amount to ratio by: ' + this.currentRatio.toString());
     }
     historyRatios.add(ratio);
     if (historyRatios.length == 11){ //only use last 10 days as analysis

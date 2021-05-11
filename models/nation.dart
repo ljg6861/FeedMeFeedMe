@@ -45,7 +45,7 @@ class Nation {
         citiesWithEnoughFood[city] = city.surplusFood;
       } else {
         //we need to make some adjustments, some cities don't have enough food
-        citiesWithoutEnoughFood[city] = (city.surplusFood - city.neededCalories);
+        citiesWithoutEnoughFood[city] = ((city.surplusFood + city.totalCaloriesInSupermarkets) - city.neededCalories);
       }
     });
 
@@ -122,6 +122,14 @@ class Nation {
     int total = 0;
     children.forEach((element) {
       total += element.getChildCalories(ratio);
+    });
+    return total;
+  }
+
+  int getTotalPeople(){
+    int total = 0;
+    children.forEach((element) {
+      total += element.getNumberOfPeopleDependent();
     });
     return total;
   }

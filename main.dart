@@ -11,9 +11,22 @@ void main() {
   beginSimulation(28, nation);
 }
 
-void beginSimulation(int daysToRun, Nation nation){
+void beginSimulation(int daysToRun, Nation nation) {
   //days to iterate (1 month)
-  List<List<dynamic>> csvData = [['city', 'daily food production', 'daily food needs', 'current ration', 'current surplus of food', 'max survivable days', 'day']];
+  List<List<dynamic>> csvData = [
+    [
+      'city',
+      'daily food production',
+      'daily food needs',
+      'current ration',
+      'current surplus of food',
+      'max survivable days',
+      'day',
+      'ratio of food contained',
+      'ratio of population',
+      'days survived using rationing based on cities food production'
+    ]
+  ];
   for (int i = 0; i < daysToRun; i++) {
     print('starting day: ' + (i + 1).toString());
     nation.advanceDay();
@@ -21,16 +34,17 @@ void beginSimulation(int daysToRun, Nation nation){
       var collectedCityData = <dynamic>[city.id];
       var random = Random();
       int totalCalories = city.getChildCalories(1);
-      if (i <= 5) { //First five days, give more than enough food with little variability
+      if (i <= 5) {
+        //First five days, give more than enough food with little variability
         city.dailyFoodProduction = (((totalCalories - (totalCalories * 0.15)) + random.nextInt((totalCalories * 0.5).round())).round());
-      }
-      else if (i > 5 && i <= 12) { //Indicate the start of a potential famine
+      } else if (i > 5 && i <= 12) {
+        //Indicate the start of a potential famine
         city.dailyFoodProduction = (((totalCalories - (totalCalories * 0.35)) + random.nextInt((totalCalories * 0.5).round())).round());
-      }
-      else if (i > 12 && i <= 24) { //Start a famine
+      } else if (i > 12 && i <= 24) {
+        //Start a famine
         city.dailyFoodProduction = (((totalCalories - (totalCalories)) + random.nextInt((totalCalories * 0.5).round())).round());
-      }
-      else{ //return to normal
+      } else {
+        //return to normal
         city.dailyFoodProduction = (((totalCalories - (totalCalories * 0.15)) + random.nextInt((totalCalories * 0.5).round())).round());
       }
       collectedCityData.add(city.dailyFoodProduction / 10000000);
@@ -40,17 +54,32 @@ void beginSimulation(int daysToRun, Nation nation){
       //calculate max survivable days
       var currentFood = city.surplusFood + city.totalCaloriesInSupermarkets;
       var totalDays = -1;
-      while (currentFood > 0){
+      while (currentFood > 0) {
         currentFood -= (city.neededCalories / (city.daysToRation - 1)).round();
         currentFood += city.dailyFoodProduction;
-        if (currentFood > 0)
-          totalDays += 1;
-        if (totalDays > 1000){
+        if (currentFood > 0) totalDays += 1;
+        if (totalDays > 50) {
           break;
         }
       }
       collectedCityData.add(totalDays);
       collectedCityData.add(i + 1);
+      collectedCityData.add(((city.surplusFood + city.totalCaloriesInSupermarkets) / nation.getAllCitiesAvailableFood()).toStringAsFixed(2));
+      collectedCityData.add((city.getNumberOfPeopleDependent() / nation.getTotalPeople()).toStringAsFixed(2));
+      totalDays = -1;
+      var realRatio = city.currentRatio;
+      city.currentRatio = 1;
+      currentFood = ((nation.getAllCitiesAvailableFood() - city.neededCalories) * (city.getNumberOfPeopleDependent() / nation.getTotalPeople())).round();
+      while (currentFood > 0) {
+        currentFood -= (city.neededCalories / (city.daysToRation - 1)).round();
+        currentFood += city.dailyFoodProduction;
+        if (currentFood > 0) totalDays += 1;
+        if (totalDays > 50) {
+          break;
+        }
+      }
+      city.currentRatio = realRatio;
+      collectedCityData.add(totalDays);
       csvData.add(collectedCityData);
     });
   }
@@ -70,7 +99,12 @@ Nation setupEnvironment() {
   for (int i = 0; i < nation.children.length; i++) {
     print('Total number of supermarkets in city ' + (i + 1).toString() + ': ' + nation.children[i].supermarkets.length.toString());
     for (int j = 0; j < nation.children[i].supermarkets.length; j++) {
-      print('Total number of families in supermarket ' + (j + 1).toString() + ' in city ' + (i + 1).toString() + ': ' + nation.children[i].supermarkets[j].children.length.toString());
+      print('Total number of families in supermarket ' +
+          (j + 1).toString() +
+          ' in city ' +
+          (i + 1).toString() +
+          ': ' +
+          nation.children[i].supermarkets[j].children.length.toString());
     }
     print('\n');
   }
